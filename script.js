@@ -113,7 +113,46 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.querySelectorAll('.project-card').forEach(card => {
+    // Create fold elements if they don't exist
+    if (!card.querySelector('.fold')) {
+        ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(className => {
+            const foldElement = document.createElement('div');
+            foldElement.className = `fold ${className}`;
+            card.querySelector('.project-card-inner').appendChild(foldElement);
+        });
+    }
+
     card.addEventListener('click', () => {
         card.classList.toggle('expanded');
+        
+        if (card.classList.contains('expanded')) {
+            const backContent = card.querySelector('.project-card-back');
+            const backContentHeight = backContent.scrollHeight;
+            card.style.height = `${backContentHeight}px`;
+            
+            // Delay to ensure content is visible after flip
+            setTimeout(() => {
+                backContent.style.overflowY = 'auto';
+            }, 400); // Half of the transition time
+        } else {
+            card.style.height = '';
+            card.querySelector('.project-card-back').style.overflowY = 'hidden';
+        }
     });
 });
+
+// Function to reset card heights on window resize
+function resetCardHeights() {
+    document.querySelectorAll('.project-card').forEach(card => {
+        if (card.classList.contains('expanded')) {
+            const backContent = card.querySelector('.project-card-back');
+            const backContentHeight = backContent.scrollHeight;
+            card.style.height = `${backContentHeight}px`;
+        } else {
+            card.style.height = '';
+        }
+    });
+}
+
+// Add event listener for window resize
+window.addEventListener('resize', resetCardHeights);
